@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -8,14 +7,12 @@ import shap
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
     page_title="Celestium: Exoplanet Classifier",
     page_icon="logo (2).png",
     layout="wide"
 )
 
-# --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if 'analysis_complete' not in st.session_state:
     st.session_state.analysis_complete = False
     st.session_state.df_resultados = pd.DataFrame()
@@ -24,7 +21,6 @@ if 'analysis_complete' not in st.session_state:
     st.session_state.X_final = None
     st.session_state.explainer = None
     
-# --- CSS PARA ESTILO ---
 st.markdown("""
 <style>
     
@@ -143,7 +139,6 @@ p, li, .stMarkdown, div, span {
     /* ### FIM DA SEÇÃO MODIFICADA ### */
 </style>
 """, unsafe_allow_html=True)
-# --- LÓGICA DE CALLBACK ---
 def run_analysis():
     if 'uploaded_file' in st.session_state and st.session_state.uploaded_file is not None:
         try:
@@ -156,7 +151,6 @@ def run_analysis():
             st.error(f"An error occurred during analysis: {e}")
             st.session_state.analysis_complete = False
 
-# --- BARRA LATERAL (SIDEBAR) ---
 with st.sidebar:
     st.title("Discovering New Worlds with AI")
     st.markdown("""
@@ -172,7 +166,6 @@ import base64
 from PIL import Image
 from io import BytesIO
 
-# Carrega a imagem e converte para base64
 def get_base64_image(image_path):
     img = Image.open(image_path)
     buffered = BytesIO()
@@ -180,11 +173,9 @@ def get_base64_image(image_path):
     img_base64 = base64.b64encode(buffered.getvalue()).decode()
     return img_base64
 
-# Caminho do logo
 logo_path = "logo (2).png"
 logo_base64 = get_base64_image(logo_path)
 
-# Insere o logo no canto superior direito com HTML
 st.markdown(
     f"""
     <div style="
@@ -201,9 +192,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-
 
 st.title("Exoplanet Classification Tool")
 st.markdown("Upload planetary transit data (Kepler Objects of Interest) to classify them using a Machine Learning model.")
@@ -229,13 +217,10 @@ if st.session_state.get('analysis_complete'):
         "**About the Model**"
     ])    
     with tab1:
-        # --- PREPARAÇÃO DO DATAFRAME PARA VISUALIZAÇÃO EM INGLÊS ---
-        # 1. Cria uma cópia e mapeia os rótulos de português para inglês.
         df_display_viz = df_resultados.copy()
         mapeamento_viz = {'FALSO POSITIVO': 'FALSE POSITIVE', 'CONFIRMADO': 'CONFIRMED'}
         df_display_viz['Prediction_EN'] = df_display_viz['Predicao'].map(mapeamento_viz)
         
-        # 2. As métricas agora usam a nova coluna traduzida.
         total = len(df_display_viz)
         confirmados = (df_display_viz['Prediction_EN'] == 'CONFIRMED').sum()
         falso_positivo = total - confirmados
@@ -251,7 +236,6 @@ if st.session_state.get('analysis_complete'):
         with col_graf1:
             st.subheader("Prediction Distribution")
             
-            # Gráfico de Pizza (usa a coluna 'Prediction_EN')
             fig_pie = px.pie(
                 df_display_viz, 
                 names='Prediction_EN', 
@@ -259,8 +243,6 @@ if st.session_state.get('analysis_complete'):
             )
             fig_pie.update_layout(legend_title_text='')
             
-            # --- CORREÇÃO ADICIONADA: Renomear o rótulo de hover/tooltip para o nome desejado ---
-            # O Plotly usa o nome da coluna para o rótulo. Trocamos o nome da coluna no hover template.
             fig_pie.update_traces(hovertemplate='Prediction: %{label}<br>Count: %{value}<br>Proportion: %{percent}<extra></extra>')
             
             st.plotly_chart(fig_pie, use_container_width=True)
@@ -269,16 +251,15 @@ if st.session_state.get('analysis_complete'):
         with col_graf2:
             st.subheader("Depth vs. Transit Duration")
             
-            # 4. Gráfico de Dispersão: Usa a coluna 'Prediction_EN' para rótulos.
             fig_scatter = px.scatter(
                 df_display_viz, 
                 x='koi_duration', 
                 y='koi_depth', 
-                color='Prediction_EN', # Usa coluna traduzida
+                color='Prediction_EN', 
                 labels={
                     'koi_duration': 'Duration (h)',
                     'koi_depth': 'Depth (ppm)',
-                    'Prediction_EN': 'Prediction'  # Título da Legenda (em inglês)
+                    'Prediction_EN': 'Prediction'  
                 }, 
                 hover_name='kepoi_name', 
                 color_discrete_map={'CONFIRMED':'#0B3D91', 'FALSE POSITIVE':'#B9D2EE'}
@@ -290,8 +271,6 @@ if st.session_state.get('analysis_complete'):
  
     with tab2:
         st.subheader("Results per Candidate")
-
-        # 1. Dicionário para renomear as colunas
         rename_map = {
             'kepoi_name': 'Object of Interest',
             'Predicao': 'Prediction',
@@ -305,15 +284,12 @@ if st.session_state.get('analysis_complete'):
             'koi_impact': 'Impact Parameter'
         }
 
-        # Cria uma cópia para exibição para não alterar o dataframe original
         df_display = df_resultados.copy()
         
         if 'Status_Dados' in df_display.columns:
             df_display.drop(columns=['Status_Dados'], inplace=True)
-        # Renomeia as colunas do dataframe de exibição
         df_display.rename(columns=rename_map, inplace=True)
 
-        # 2. Centraliza os dados e os títulos
         st.dataframe(
             df_display.style.set_properties(**{'text-align': 'center'})
                            .set_table_styles([{'selector': 'th', 'props': [('text-align', 'center')]}]),
@@ -351,7 +327,6 @@ if st.session_state.get('analysis_complete'):
 
                 st.subheader("Detailed Technical Justification")
                 
-                # --- DICIONÁRIO COMPLETO E CONTEXTUAL ---
                 mapeamento_explicacoes = {
                 'koi_fpflag_nt': lambda v: f"the **presence of the 'not transit-like signal' flag** (value {v:.0f}), a strong indication against a valid candidate." if v == 1 else f"the **absence of the 'not transit-like signal' flag** (value {v:.0f}), indicating that the light curve is consistent with a transit.",
                 'koi_fpflag_ss': lambda v: f"the **presence of the 'stellar variability' flag** (value {v:.0f}), suggesting that the signal likely arises from stellar activity." if v == 1 else f"the **absence of the 'stellar variability' flag** (value {v:.0f}), suggesting the signal is not caused by starspots.",
