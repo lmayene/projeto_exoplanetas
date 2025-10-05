@@ -13,6 +13,19 @@ st.set_page_config(
     layout="wide"
 )
 
+
+try:
+    current_theme = st.get_option("theme.base")
+except:
+    current_theme = "light"
+
+if current_theme == "dark":
+    st.warning(
+        "☀️ **Aviso de Visualização:** Esta aplicação foi otimizada para o modo claro. "
+        "Para a melhor experiência, recomendamos alterar o tema do seu navegador ou sistema operacional.",
+        icon="💡"
+    )
+
 if 'analysis_complete' not in st.session_state:
     st.session_state.analysis_complete = False
     st.session_state.df_resultados = pd.DataFrame()
