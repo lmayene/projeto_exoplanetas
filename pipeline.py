@@ -8,7 +8,7 @@ try:
     modelo = joblib.load('modelo_random_forest.pkl')
     colunas_modelo = json.load(open('colunas_modelo.json', 'r'))
     valores_imputacao = json.load(open('valores_imputacao.json', 'r'))
-    #explainer = pickle.load(open('shap_explainer.pkl', 'rb'))
+    explainer = pickle.load(open('shap_explainer.pkl', 'rb'))
 except FileNotFoundError:
     raise RuntimeError("Arquivos de modelo/explicador não encontrados. Execute o script 'preparar_artefatos.py' primeiro.")
 
