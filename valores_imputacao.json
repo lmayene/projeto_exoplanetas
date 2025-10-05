@@ -1,8 +1,8 @@
 {
-    "koi_fpflag_nt": 0,
-    "koi_fpflag_ss": 0,
-    "koi_fpflag_co": 0,
-    "koi_fpflag_ec": 0,
+    "koi_fpflag_nt": 0.20367656853603303,
+    "koi_fpflag_ss": 0.2962568269615026,
+    "koi_fpflag_co": 0.25163181031037696,
+    "koi_fpflag_ec": 0.15292393765818568,
     "koi_period": 51.79723652452351,
     "koi_period_err1": 0.0018156768107655836,
     "koi_period_err2": -0.0018156768107655836,
